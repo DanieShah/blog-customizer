@@ -5,6 +5,7 @@ import React, {
 	SyntheticEvent,
 	ReactElement,
 	useEffect,
+	useRef,
 } from 'react';
 import {
 	TArrType,
@@ -19,23 +20,21 @@ import { Text } from '../text';
 import { Select } from '../select';
 import { Separator } from '../separator';
 import { RadioGroup } from '../radio-group';
+import clsx from 'clsx';
 
 import styles from './ArticleParamsForm.module.scss';
 
 type TArticleParamsFormProps = {
-	setActualArray: React.Dispatch<React.SetStateAction<TArrType>>;
+	setArticleState: React.Dispatch<React.SetStateAction<TArrType>>;
 	setUpdatedArray: React.Dispatch<React.SetStateAction<TArrType>>;
-	defaultArray: TArrType;
 	updatedArray: TArrType;
 };
 
 export const ArticleParamsForm = ({
-	setActualArray,
+	setArticleState,
 	setUpdatedArray,
-	defaultArray,
 	updatedArray,
 }: TArticleParamsFormProps): ReactElement => {
-	const openContainerClass = `${styles.container} ${styles.container_open}`;
 
 	const [font, setFont] = useState(defaultArticleState.fontFamilyOption);
 	const [size, setSize] = useState(defaultArticleState.fontSizeOption);
@@ -45,13 +44,10 @@ export const ArticleParamsForm = ({
 	);
 	const [weight, setWeight] = useState(defaultArticleState.contentWidth);
 
-	const [mod, setMod]: [
-		boolean,
-		React.Dispatch<React.SetStateAction<boolean>>
-	] = useState<boolean>(false);
+	const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
 
 	const openSideBar = (): void => {
-		setMod(!mod);
+		setIsMenuOpen(!isMenuOpen);
 	};
 
 	const resetAllParameters = (): void => {
@@ -61,6 +57,8 @@ export const ArticleParamsForm = ({
 		setBackGroundColor(defaultArticleState.fontColor);
 		setWeight(defaultArticleState.contentWidth);
 	};
+
+	const formRef = useRef<HTMLDivElement | null>(null);
 
 	useEffect(() => {
 		setUpdatedArray({
@@ -73,16 +71,19 @@ export const ArticleParamsForm = ({
 
 	}, [font, size, fontColor, backgroundColor, weight]);
 
-
 	return (
 		<>
-			<ArrowButton mod={mod} pressButton={openSideBar} />
-			<aside className={!mod ? styles.container : openContainerClass}>
+			<ArrowButton isMenuOpen={isMenuOpen} pressButton={openSideBar} />
+			<aside className={clsx(styles.container, {
+				[styles.container_open]: isMenuOpen,
+			})}>
 				<form
 					className={styles.form}
 					onSubmit={(e: SyntheticEvent) => {
 						e.preventDefault();
-					}}>
+						setArticleState(updatedArray);
+					}}
+					>
 					<Text size={31} weight={800} family='open-sans'>
 						Задайте параметры
 					</Text>
@@ -118,26 +119,25 @@ export const ArticleParamsForm = ({
 						options={contentWidthArr}
 						title='ширина контента'
 					/>
-					{/* {content} */}
 					<div className={styles.bottomContainer}>
 						<Button
 							title='Сбросить'
 							type='reset'
 							onClick={() => {
-								setActualArray(defaultArray);
+								setArticleState(defaultArticleState);
 								resetAllParameters();
 							}}
 						/>
 						<Button
 							title='Применить'
 							type='submit'
-							onClick={() => {
-								setActualArray(updatedArray);
-							}}
 						/>
 					</div>
 				</form>
 			</aside>
+			{isMenuOpen && <div className={styles.overlay} onClick={() => {
+				setIsMenuOpen(false);
+			}}></div>}
 		</>
 	);
 };

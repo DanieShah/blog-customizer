@@ -1,5 +1,5 @@
 import { createRoot } from 'react-dom/client';
-import { StrictMode, CSSProperties, useState } from 'react';
+import { StrictMode, CSSProperties, useState, useEffect } from 'react';
 import clsx from 'clsx';
 
 import { Article } from './components/article/Article';
@@ -13,31 +13,29 @@ const domNode = document.getElementById('root') as HTMLDivElement;
 const root = createRoot(domNode);
 
 const App = () => {
-	const [actualArray, setActualArray] = useState<TArrType>(defaultArticleState);
+	const [articleState, setArticleState] = useState<TArrType>(defaultArticleState);
 	const [updatedArray, setUpdatedArray] = useState<TArrType | null>(null);
-	const defaultArray: TArrType = defaultArticleState;
 
 	return (
 		<div
 			className={clsx(styles.main)}
 			style={
 				{
-					'--font-family': actualArray.fontFamilyOption.value,
-					'--font-size': actualArray.fontSizeOption.value,
-					'--font-color': actualArray.fontColor.value,
-					'--container-width': actualArray.contentWidth.value,
-					'--bg-color': actualArray.backgroundColor.value,
+					'--font-family': articleState.fontFamilyOption.value,
+					'--font-size': articleState.fontSizeOption.value,
+					'--font-color': articleState.fontColor.value,
+					'--container-width': articleState.contentWidth.value,
+					'--bg-color': articleState.backgroundColor.value,
 				} as CSSProperties
 			}>
 			<ArticleParamsForm
-				setActualArray={setActualArray}
+				setArticleState={setArticleState}
 				setUpdatedArray={
 					setUpdatedArray as React.Dispatch<React.SetStateAction<TArrType>>
 				}
-				defaultArray={defaultArray}
 				updatedArray={updatedArray as TArrType}
 			/>
-			<Article />
+			<Article  />
 		</div>
 	);
 };
